@@ -1,0 +1,107 @@
+version: '3.9'
+
+services:
+  # ---- Data layer ----
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: dealer-postgres
+    environment:
+      POSTGRES_USER: dealer
+      POSTGRES_PASSWORD: dealer
+      POSTGRES_DB: car_dealer
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dealer -d car_dealer"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - dealer-net
+
+  adminer:
+    image: adminer
+    container_name: dealer-adminer
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
+    networks:
+      - dealer-net
+
+  # ---- Web application ----
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: dealer-backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://dealer:dealer@postgres:5432/car_dealer
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    networks:
+      - dealer-net
+
+  # ---- MCP tool servers (the agentic layer's hands) ----
+  postgres-mcp:
+    build:
+      context: .
+      dockerfile: mcp-servers/postgres_mcp/Dockerfile
+    container_name: dealer-postgres-mcp
+    environment:
+      DATABASE_URL: postgresql+psycopg://dealer:dealer@postgres:5432/car_dealer
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8001:8001"
+    networks:
+      - dealer-net
+
+  ops-mcp:
+    build:
+      context: .
+      dockerfile: mcp-servers/ops_mcp/Dockerfile
+    container_name: dealer-ops-mcp
+    environment:
+      BACKEND_HEALTH_URL: http://backend:8000/health
+      DATABASE_URL: postgresql+psycopg://dealer:dealer@postgres:5432/car_dealer
+    volumes:
+      # Lets the ops agent inspect/restart sibling containers. See README
+      # "Security notes" before doing this outside a local portfolio demo.
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - backend
+    ports:
+      - "8002:8002"
+    networks:
+      - dealer-net
+
+  # ---- Agent orchestrator (CLI / on-demand, see agents/cli.py) ----
+  agents:
+    build: ./agents
+    container_name: dealer-agents
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      CLAUDE_MODEL: ${CLAUDE_MODEL:-claude-sonnet-4-5}
+      POSTGRES_MCP_URL: http://postgres-mcp:8001/mcp
+      OPS_MCP_URL: http://ops-mcp:8002/mcp
+    depends_on:
+      - postgres-mcp
+      - ops-mcp
+    networks:
+      - dealer-net
+    stdin_open: true
+    tty: true
+
+networks:
+  dealer-net:
+    driver: bridge
+
+volumes:
+  pgdata:

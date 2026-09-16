@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ listing.year }} {{ listing.make }} {{ listing.model }}{% endblock %}
+{% block content %}
+  <div class="detail">
+    <h1>{{ listing.year }} {{ listing.make }} {{ listing.model }}</h1>
+    <p class="price">${{ "{:,.0f}".format(listing.price) }}</p>
+    <p class="meta">{{ "{:,}".format(listing.mileage) }} miles · {{ listing.condition.value }} · {{ listing.status.value }}</p>
+    <p class="description">{{ listing.description }}</p>
+  </div>
+{% endblock %}

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}AutoMarket{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="/">AutoMarket</a>
+    <form class="search-form" action="/search" method="get">
+      <input type="text" name="q" placeholder="Try: reliable family SUV under 30k miles" value="{{ query|default('') }}">
+      <button type="submit">Search</button>
+    </form>
+    <a class="sell-link" href="/sell">Sell your car</a>
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

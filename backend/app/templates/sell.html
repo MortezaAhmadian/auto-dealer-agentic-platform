@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Sell your car — AutoMarket{% endblock %}
+{% block content %}
+  <h1>List your car</h1>
+  <form class="sell-form" action="/sell" method="post">
+    <label>Your name <input type="text" name="seller_name" required></label>
+    <label>Your email <input type="email" name="seller_email" required></label>
+    <label>Make <input type="text" name="make" required></label>
+    <label>Model <input type="text" name="model" required></label>
+    <label>Year <input type="number" name="year" min="1950" max="2026" required></label>
+    <label>Mileage <input type="number" name="mileage" min="0" required></label>
+    <label>Asking price ($) <input type="number" name="price" min="0" step="1" required></label>
+    <label>Condition
+      <select name="condition">
+        <option value="new">New</option>
+        <option value="excellent">Excellent</option>
+        <option value="good" selected>Good</option>
+        <option value="fair">Fair</option>
+        <option value="needs_work">Needs work</option>
+      </select>
+    </label>
+    <label>Description
+      <textarea name="description" rows="4" placeholder="Any accidents, service history, notable features..."></textarea>
+    </label>
+    <button type="submit">List my car</button>
+  </form>
+  <p class="hint">
+    This form creates a listing directly. The agentic version of this flow
+    (listing_intake_agent) additionally moderates the description, fills in
+    missing structured details, and calls the pricing agent for a suggested
+    price — see the <code>agents/</code> directory.
+  </p>
+{% endblock %}

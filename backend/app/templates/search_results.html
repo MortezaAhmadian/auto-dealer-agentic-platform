@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Search results — AutoMarket{% endblock %}
+{% block content %}
+  <h1>Results for "{{ query }}"</h1>
+  <p class="hint">Semantic search — ranked by meaning, not just keyword match.</p>
+  <div class="grid">
+    {% for l in listings %}
+      <a class="card" href="/listings/{{ l.id }}">
+        <h3>{{ l.year }} {{ l.make }} {{ l.model }}</h3>
+        <p class="price">${{ "{:,.0f}".format(l.price) }}</p>
+        <p class="meta">{{ "{:,}".format(l.mileage) }} miles · {{ l.condition.value }}</p>
+      </a>
+    {% else %}
+      <p>No matches. Try a different description.</p>
+    {% endfor %}
+  </div>
+{% endblock %}
