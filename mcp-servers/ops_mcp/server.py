@@ -15,21 +15,16 @@ not something to expose beyond localhost or give an untrusted agent access
 to in a real deployment — restart_service is scoped to an explicit
 allow-list of this project's own container names for that reason.
 """
-import os
-import sys
+import os, sys, docker, httpx
 from pathlib import Path
+from mcp.server.fastmcp import FastMCP
+from sqlalchemy import text
+from shared.database import engine
+from shared import models
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-import docker
-import httpx
-from mcp.server.fastmcp import FastMCP
-from sqlalchemy import text
-
-from shared.database import engine
-from shared import models  # noqa: F401 — import registers tables on Base.metadata
-
-mcp = FastMCP("ops-tools", host="0.0.0.0", port=8002)
+mcp = FastMCP("ops-tools", host="0.0.0.0", port=8022)
 
 BACKEND_HEALTH_URL = os.getenv("BACKEND_HEALTH_URL", "http://backend:8000/health")
 

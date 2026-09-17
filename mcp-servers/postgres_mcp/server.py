@@ -5,21 +5,18 @@ This is the "hands" of the business-logic agents (buyer assistant, listing
 intake, pricing): they never touch SQL directly, they call these tools.
 Runs over streamable-http so it's reachable from the agents container.
 """
-import os
-import sys
+import os, sys
 from pathlib import Path
 from decimal import Decimal
-
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-
 from mcp.server.fastmcp import FastMCP
 from sqlalchemy import func
-
 from shared.database import SessionLocal
 from shared import models
 from shared.embeddings import embed
 
-mcp = FastMCP("postgres-dealer-tools", host="0.0.0.0", port=8001)
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+
+mcp = FastMCP("postgres-dealer-tools", host="0.0.0.0", port=8021)
 
 
 def _listing_to_dict(listing: models.CarListing) -> dict:
