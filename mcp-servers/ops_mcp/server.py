@@ -123,7 +123,7 @@ def run_pending_migrations() -> str:
     Ensure the database schema is up to date (creates any missing tables
     and the pgvector extension). Safe to call repeatedly — idempotent.
     """
-    from shared.database import Base  # Base already has models' tables registered (see import above)
+    from shared.database import Base  # Base already has models' tables registered 
     with engine.connect() as conn:
         conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
         conn.commit()
