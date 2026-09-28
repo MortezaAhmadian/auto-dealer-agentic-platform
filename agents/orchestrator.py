@@ -2,7 +2,7 @@
 The multi-agent orchestrator.
 
 A router node classifies each incoming request, then hands it off to one of
-four specialist agents, each built with langgraph's create_react_agent and
+four specialist agents, each built with langgraph's create_agent and
 bound only to the MCP tools it actually needs:
 
   buyer_assistant  -> postgres-mcp tools (RAG semantic + filtered search)
@@ -20,7 +20,7 @@ import os
 from langchain_anthropic import ChatAnthropic
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.graph import StateGraph, END
-from langgraph.prebuilt import create_react_agent
+from langgraph.prebuilt import create_agent
 
 from state import OrchestratorState, RequestType
 from prompts import (
@@ -88,10 +88,10 @@ class DealerOrchestrator:
         llm = ChatAnthropic(model=CLAUDE_MODEL, temperature=0)
 
         agents = {
-            "buy": create_react_agent(llm, postgres_tools, prompt=BUYER_ASSISTANT_PROMPT),
-            "sell": create_react_agent(llm, postgres_tools, prompt=LISTING_INTAKE_PROMPT),
-            "price": create_react_agent(llm, postgres_tools, prompt=PRICING_PROMPT),
-            "maintain": create_react_agent(llm, ops_tools, prompt=MAINTENANCE_PROMPT),
+            "buy": create_agent(llm, postgres_tools, prompt=BUYER_ASSISTANT_PROMPT),
+            "sell": create_agent(llm, postgres_tools, prompt=LISTING_INTAKE_PROMPT),
+            "price": create_agent(llm, postgres_tools, prompt=PRICING_PROMPT),
+            "maintain": create_agent(llm, ops_tools, prompt=MAINTENANCE_PROMPT),
         }
         return cls(llm, agents)
 
